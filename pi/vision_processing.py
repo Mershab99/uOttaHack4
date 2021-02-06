@@ -51,7 +51,9 @@ entering = False
 leaving = False
 
 img_id = 0
-
+# for santizer cool down
+prevtime = time.time() * 1000
+# for walking zone
 previoustime = time.time() * 1000
 # Capture frames continuously from the camera
 for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port=True):
@@ -117,13 +119,13 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     # also check is cooldown time has passed, 500 millis current cooldown
     pixel_threshold = (walkzone_end_y-walkzone_start_y)*(walkzone_end_x-walkzone_start_x)
     if(n_black_pixels < pixel_threshold*.95 and (time.time()*1000) - previoustime >150):
-        if((time.time()*1000) - previoustime >250):
+        if((time.time()*1000) - previoustime >350):
             img_id += 1
         print('movement detected!', n_black_pixels, 'time:', time.time())
         if(leaving):
-            filename = "id{img_id}_leaving_{timestamp}.jpg".format(img_id=img_id, timestamp = time.time())
+            filename = "leaving_{timestamp}_id{img_id}.jpg".format(timestamp = time.time(),img_id=img_id)
         else:
-            filename = "id{img_id}_entering_{timestamp}.jpg".format(img_id=img_id, timestamp = time.time())
+            filename = "entering_{timestamp}_id{img_id}.jpg".format(timestamp = time.time(),img_id=img_id)
         previoustime = time.time() * 1000
         
         cv2.imwrite(filename, image)
@@ -140,10 +142,12 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     s_height = sanitizer_movement.shape[0]
     s_width = sanitizer_movement.shape[1]
     s_threshold = s_height*s_width*0.95
-    if(np.sum(sanitizer_movement == 0) < s_threshold):
+    if(np.sum(sanitizer_movement == 0) < s_threshold and time.time()*1000 - prevtime > 1000):
         print("==========THANKS FOR USING SANITIZER============")
+        prevtime = time.time() * 1000
+        
     #cv2.imshow("sanitizer", sanitizer_movement)
-    cv2.imshow("Frame", image)
+    #cv2.imshow("Frame", image)
     # Wait for keyPress for 1 millisecond
     key = cv2.waitKey(1) & 0xFF
      
@@ -151,7 +155,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     raw_capture.truncate(0)
     # performance timer
     elapsedtime = (time.time()*1000) - frametimer
-    #print("frame/millis", elapsedtime)
+    print("frame/millis", elapsedtime)
     # If the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
