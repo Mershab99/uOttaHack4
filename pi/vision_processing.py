@@ -3,6 +3,7 @@ from picamera import PiCamera # Provides a Python interface for the RPi Camera M
 import time # Provides time-related functions
 import cv2 # OpenCV library
 import numpy as np
+import json
 # Initialize the camera
 camera = PiCamera()
  
@@ -20,18 +21,24 @@ time.sleep(0.1)
 fgbg = cv2.createBackgroundSubtractorMOG2(history = 8)
 sanitizer_motion = cv2.createBackgroundSubtractorMOG2(history = 8)
 
+# parameters from JSON
+with open('vision_settings.json', 'r') as myfile:
+    data=myfile.read()
+    
+vision_settings = json.loads(data)
+
 # ROI settings
-walkzone_start_x = (int)(275*1.5)
-walkzone_end_x = (int)(460*1.5)
-walkzone_start_y = (int)(310*1.5)
-walkzone_end_y = (int)(460*1.5)
+walkzone_start_x = vision_settings["walkzone_start_x"]
+walkzone_end_x = vision_settings["walkzone_end_x"]
+walkzone_start_y = vision_settings["walkzone_start_y"]
+walkzone_end_y = vision_settings["walkzone_end_y"]
 walkzone_start = (walkzone_start_x ,walkzone_start_y)
 walkzone_end = (walkzone_end_x,walkzone_end_y)
 
-sanitizer_start_x = (int)(55*1.5)
-sanitizer_end_x = (int)(60*1.5)
-sanitizer_start_y = (int)(385*1.5)
-sanitizer_end_y = (int)(395*1.5)
+sanitizer_start_x = vision_settings["sanitizer_start_x"]
+sanitizer_end_x = vision_settings["sanitizer_end_x"]
+sanitizer_start_y = vision_settings["sanitizer_start_y"]
+sanitizer_end_y = vision_settings["sanitizer_end_y"]
 sanitizer_start = (sanitizer_start_x, sanitizer_start_y)
 sanitizer_end = (sanitizer_end_x, sanitizer_end_y)
 
@@ -42,6 +49,8 @@ thickness = 4
 walk_in_state = False
 entering = False
 leaving = False
+
+img_id = 0
 
 previoustime = time.time() * 1000
 # Capture frames continuously from the camera
@@ -64,7 +73,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     #walk-in or walk-out algorithm
     height = walkzoneROI.shape[0]
     width = walkzoneROI.shape[1]
-    walkzoneROI = cv2.rectangle(walkzoneROI, (0,0), ((int)(width), (int)(height*.2)), color, thickness)
+    #walkzoneROI = cv2.rectangle(walkzoneROI, (0,0), ((int)(width), (int)(height*.2)), color, thickness)
     walking_in_walkzone = fgmask[0:(int)(height*.2),0:(int)(width)]
     walking_out_walkzone = fgmask[(int)(height*.7): height,0:(int)(width)]
     walk_in_threshold = 0.85*(width * (height *.2))
@@ -108,14 +117,16 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     # also check is cooldown time has passed, 500 millis current cooldown
     pixel_threshold = (walkzone_end_y-walkzone_start_y)*(walkzone_end_x-walkzone_start_x)
     if(n_black_pixels < pixel_threshold*.95 and (time.time()*1000) - previoustime >150):
+        if((time.time()*1000) - previoustime >250):
+            img_id += 1
         print('movement detected!', n_black_pixels, 'time:', time.time())
         if(leaving):
-            filename = "leaving_{timestamp}.jpg".format(timestamp = time.time())
+            filename = "id{img_id}_leaving_{timestamp}.jpg".format(img_id=img_id, timestamp = time.time())
         else:
-            filename = "entering_{timestamp}.jpg".format(timestamp = time.time())
+            filename = "id{img_id}_entering_{timestamp}.jpg".format(img_id=img_id, timestamp = time.time())
         previoustime = time.time() * 1000
         
-        #cv2.imwrite(filename, image)
+        cv2.imwrite(filename, image)
     # Display the frame using OpenCV
     image = cv2.rectangle(image, walkzone_start, walkzone_end, color, thickness)
     
