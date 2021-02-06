@@ -15,7 +15,7 @@ def detect_faces(path):
 
     image = vision.Image(content=content)
 
-    response = client.face_detection(image=image)
+    response = client.annotate_image({'image': image,'features': [{'type': vision.enums.Feature.Type.FACE_DETECTION},{'type': vision.enums.Feature.Type.},{'type': vision.enums.Feature.Type.FACE_DETECTION}], })
     faces = response.face_annotations
     print("--- %s seconds ---" % (time.time() - start_time))
     # Names of likelihood from google.cloud.vision.enums
