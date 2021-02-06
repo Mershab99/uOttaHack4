@@ -18,8 +18,8 @@ if 'LOG_FOLDER' in os.environ:
 
     # File Logging Setup
     app.config['LOG_DIR'] = os.environ.get("LOG_FOLDER", "/")
-    app.config['APP_LOG_NAME'] = os.environ.get("APP_LOG_NAME", "praizl.log")
-    app.config['WWW_LOG_NAME'] = os.environ.get("WWW_LOG_NAME", "praizl_www.log")
+    app.config['APP_LOG_NAME'] = os.environ.get("APP_LOG_NAME", "sanihack.log")
+    app.config['WWW_LOG_NAME'] = os.environ.get("WWW_LOG_NAME", "sanihack.log")
     app.config['LOG_MAX_BYTES'] = os.environ.get("LOG_MAX_BYTES", 500_000_000)  # 100MB in bytes
     app.config['LOG_COPIES'] = os.environ.get("LOG_COPIES", 5)
 
