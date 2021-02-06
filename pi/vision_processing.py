@@ -18,14 +18,23 @@ raw_capture = PiRGBArray(camera, size=(960, 720))
 # Wait a certain number of seconds to allow the camera time to warmup
 time.sleep(0.1)
 fgbg = cv2.createBackgroundSubtractorMOG2(history = 8)
+sanitizer_motion = cv2.createBackgroundSubtractorMOG2(history = 8)
 
 # ROI settings
-walkzone_start = ((int)(275*1.5),(int)(310*1.5))
-walkzone_end = ((int)(460*1.5),(int)(460*1.5))
 walkzone_start_x = (int)(275*1.5)
 walkzone_end_x = (int)(460*1.5)
 walkzone_start_y = (int)(310*1.5)
 walkzone_end_y = (int)(460*1.5)
+walkzone_start = (walkzone_start_x ,walkzone_start_y)
+walkzone_end = (walkzone_end_x,walkzone_end_y)
+
+sanitizer_start_x = (int)(55*1.5)
+sanitizer_end_x = (int)(60*1.5)
+sanitizer_start_y = (int)(385*1.5)
+sanitizer_end_y = (int)(395*1.5)
+sanitizer_start = (sanitizer_start_x, sanitizer_start_y)
+sanitizer_end = (sanitizer_end_x, sanitizer_end_y)
+
 # Blue color in BGR 
 color = (255, 0, 0) 
 thickness = 4
@@ -106,12 +115,24 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
             filename = "entering_{timestamp}.jpg".format(timestamp = time.time())
         previoustime = time.time() * 1000
         
-        cv2.imwrite(filename, image)
+        #cv2.imwrite(filename, image)
     # Display the frame using OpenCV
     image = cv2.rectangle(image, walkzone_start, walkzone_end, color, thickness)
+    
+    
+    # Hand sanitizer detection
+    image = cv2.rectangle(image, sanitizer_start, sanitizer_end, color, thickness)
+    
+    sanitizerROI = image[sanitizer_start_y: sanitizer_end_y, sanitizer_start_x: sanitizer_end_x]
+    sanitizerROI = cv2.blur(sanitizerROI, (3,3))
+    sanitizer_movement = sanitizer_motion.apply(sanitizerROI)
+    s_height = sanitizer_movement.shape[0]
+    s_width = sanitizer_movement.shape[1]
+    s_threshold = s_height*s_width*0.95
+    if(np.sum(sanitizer_movement == 0) < s_threshold):
+        print("==========THANKS FOR USING SANITIZER============")
+    #cv2.imshow("sanitizer", sanitizer_movement)
     cv2.imshow("Frame", image)
-    
-    
     # Wait for keyPress for 1 millisecond
     key = cv2.waitKey(1) & 0xFF
      
