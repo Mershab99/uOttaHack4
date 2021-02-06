@@ -22,6 +22,7 @@ fgbg = cv2.createBackgroundSubtractorMOG2(history = 8)
 # ROI settings
 walkzone_start = (275,310)
 walkzone_end = (460,460)
+# settings for cropping
 walkzone_start_x = 275
 walkzone_end_x = 460
 walkzone_start_y = 310
@@ -33,16 +34,18 @@ thickness = 4
 previoustime = time.time() * 1000
 # Capture frames continuously from the camera
 for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port=True):
-
+    # performance indicator
     frametimer = time.time() *1000
     # Grab the raw NumPy array representing the image
     image = frame.array
     # walkzone ROI
     walkzoneROI = image[walkzone_start_y:walkzone_end_y,walkzone_start_x:walkzone_end_x]
-    
-    blurredframe = cv2.blur(walkzoneROI, (3,3)) 
+    # Noise reduction
+    blurredframe = cv2.blur(walkzoneROI, (3,3))
+    # Subtraction
     fgmask = fgbg.apply(blurredframe)
     kernel = np.ones((5,5),np.uint16)
+    # Noise reduction
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_CLOSE, kernel)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
