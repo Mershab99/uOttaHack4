@@ -27,18 +27,31 @@ function Message(props) {
 function MaskAndSanitize() {
   return (
     <div>
-      <img src="all.jpg" alt="thanks" width="1000%" height="1000%" className="thanks" /> 
+      <img
+        src="all.jpg"
+        alt="thanks"
+        width="1000%"
+        height="1000%"
+        className="thanks"
+      />
     </div>
   );
 }
 
 function NoMask() {
-  return <Message msg="Please put on a mask" id="msg" />;
+  return (
+    <div>
+      <img
+        src="noMask.png"
+        alt="noMask"
+        width="1000%"
+        height="1000%"
+        className="thanks"
+      />
+    </div>
+  );
 }
 
-function NoPurell() {
-  return <Message msg="Hey, make sure to grab some sanatizer" />;
-}
 
 function App() {
   let sanitizedHands = true;
@@ -54,7 +67,7 @@ function App() {
   } else if (sanitizedHands === true && maskOn === false) {
     return <NoMask />;
   } else if (sanitizedHands === false && maskOn === true) {
-    return <NoPurell />;
+    return <MaskAndSanitize />;
   } else if (sanitizedHands === false && maskOn === false) {
     return <NoMask />;
   }
