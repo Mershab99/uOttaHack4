@@ -49,7 +49,7 @@ if 'LOG_FOLDER' in os.environ:
 
 api = Api(app)
 
-#MONGO DRIVER CODE
+# MONGO DRIVER CODE
 app.config['MONGODB_SETTINGS'] = {
     'host': 'mongodb://' + os.environ['MONGO_USERNAME'] + ':' + os.environ['MONGO_PASSWORD'] + '@'
             + os.environ['MONGO_HOST'] + ':' + os.environ['MONGO_PORT'] + '/' + os.environ[
@@ -62,11 +62,13 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 GLOBAL_MONGO_ENGINE.init_app(app)
 
 # Resources
-from src.resources import status, settings
+from src.resources import status, settings, event
 
 api.add_resource(status.Status, '/status/')
 api.add_resource(settings.SettingsGet, '/settings-get/')
 api.add_resource(settings.SettingsUpdate, '/settings-update/')
+api.add_resource(event.GCloudEventPost, '/event/gcloud')
+api.add_resource(event.SanitizationEventPost, '/event/sanitizer')
 
 if __name__ == "__main__":
     # app.run(debug=True, port=int(os.environ.get("PORT", 80)))

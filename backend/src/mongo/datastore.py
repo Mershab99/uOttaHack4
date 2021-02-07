@@ -28,6 +28,7 @@ class DataLake(Datastore):
             self.collection.insert_one(flow)
         else:
             self.collection.replace_one({'key': key}, flow)
+        return flow
 
     def find_by_key(self, key):
         obj = self.collection.find_one({
