@@ -155,6 +155,12 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     s_threshold = s_height*s_width*0.95
     # if movement is detected and at least 1000 millis has elapsed since last sanitizer event
     if(np.sum(sanitizer_movement == 0) < s_threshold and time.time()*1000 - prevtime > 1000):
+        sanitizer_timestamp = time.time()
+        # --------------------------SANITIZER DATA BELOW---------------------------------------------
+        # code below will be run when sanitizer bottle interaction is detected
+        # PUT CODE HERE, JUST take use the variable sanitizer_timestamp as the time stamp value
+        
+        #--------------------------------------------------------------------------------------------
         print("==========THANKS FOR USING SANITIZER============")
         prevtime = time.time() * 1000
         
