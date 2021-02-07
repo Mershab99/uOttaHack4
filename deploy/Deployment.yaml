@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sani-deployment
+  labels:
+    app: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: be-service
+        image: mershab99/be-sani
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        env:
+          - name: MONGO_USERNAME
+            value: mongo
+          - name: MONGO_PASSWORD
+            value: test
+          - name: MONGO_HOST
+            value: localhost
+          - name: MONGO_PORT
+            value: "27017"
+          - name: MONGO_DB
+            value: db
+      - name: fe-service
+        image: mershab99/fe-sani
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+      - name: db
+        image: mongo
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+          - containerPort: 27017
+        env:
+        - name: MONGOD_INITDB_ROOT_USERNAME
+          value: mongo
+        - name: MONGOD_INITDB_ROOT_PASSWORD
+          value: test
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: web
+  name: mongodb-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: web
+  name: be-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: web
+  name: fe-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
