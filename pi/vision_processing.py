@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import time  # Provides time-related functions
@@ -166,11 +167,13 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
         # --------------------------------------------------------------------------------------------
 
         # POST TO BACKEND
-        event_data = {
-            'sanitize': True,
-            'timestamp': sanitizer_timestamp.__str__()
+        data = {
+            'data': {
+                'sanitize': True,
+                'timestamp': datetime.datetime.now().__str__()
+            }
         }
-        api_broker.post_data(event_data=event_data, endpoint="/event/sanitizer/")
+        api_broker.post_data(event_data=data, endpoint="/event/sanitizer/")
 
         print("==========THANKS FOR USING SANITIZER============")
         prevtime = time.time() * 1000

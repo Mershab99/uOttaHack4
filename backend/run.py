@@ -67,8 +67,8 @@ from src.resources import status, settings, event
 api.add_resource(status.Status, '/status/')
 api.add_resource(settings.SettingsGet, '/settings-get/')
 api.add_resource(settings.SettingsUpdate, '/settings-update/')
-api.add_resource(event.GCloudEventPost, '/event/gcloud')
-api.add_resource(event.SanitizationEventPost, '/event/sanitizer')
+api.add_resource(event.GCloudEventPost, '/event/gcloud/')
+api.add_resource(event.SanitizationEventPost, '/event/sanitizer/')
 
 if __name__ == "__main__":
     # app.run(debug=True, port=int(os.environ.get("PORT", 80)))

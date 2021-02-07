@@ -61,7 +61,7 @@ def detect_faces(id):
         num_faces = len(faces)
         num_person = len(person)
         if num_faces < num_person:
-            people_shop_count += num_faces*2 - num_person
+            people_shop_count += num_faces * 2 - num_person
         else:
             people_shop_count += num_faces
         # print(person)
@@ -112,13 +112,15 @@ def main():
 
                 # POST TO BACKEND
                 event_data = {
-                    'ppe': ppecheck,
-                    'store_count': store_count,
-                    'img_path': face_result['path'],
-                    'timestamp': face_result['time'],
-                    'result': face_result
+                    'data': {
+                        'ppe': ppecheck,
+                        'store_count': store_count,
+                        'img_path': face_result['path'],
+                        'timestamp': face_result['time'],
+                        'result': face_result
+                    }
                 }
-                api_broker.post_data(event_data=event_data, endpoint="/event/gcloud")
+                api_broker.post_data(event_data=event_data, endpoint="/event/gcloud/")
 
                 print("store count: " + str(store_count) + "\t was there a ppe : " + str(
                     ppecheck) + "\t id number: " + str(id_num))

@@ -19,5 +19,5 @@ class SanitizationEventPost(Resource):
     @staticmethod
     def post():
         data = parser.parse_args()
-        flow = LAKE_INSTANCE.flow_in('sanitizer', data)
+        flow = LAKE_INSTANCE.flow_in('sanitizer', data['data'])
         return flow
