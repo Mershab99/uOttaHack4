@@ -8,8 +8,15 @@ function Message(props) {
       style={{
         color: "black",
         fontSize: "370%",
-        fontFamily: "dosis",
+        fontFamily: "Century Gothic",
         textAlign: "center",
+        marginTop: 50,
+        marginBottom: 50,
+
+        // if they are wearing a mask
+        // if they are not wearing a mask
+        // if they did not sanatize their hands
+        // scenario for if they did both
       }}
     >
       {props.msg}
@@ -17,26 +24,39 @@ function Message(props) {
   );
 }
 
-function SanitizedHands() {
-  return <Message msg="Thank you for washing your hands!" />;
+function MaskAndSanitize() {
+  return (
+    <div>
+      <img src="all.jpg" alt="thanks" width="1000%" height="1000%" className="thanks" /> 
+    </div>
+  );
+}
+
+function NoMask() {
+  return <Message msg="Please put on a mask" id="msg" />;
 }
 
 function NoPurell() {
-  return <Message msg="Missing sanatizer" />;
+  return <Message msg="Hey, make sure to grab some sanatizer" />;
 }
 
 function App() {
   let sanitizedHands = true;
+  let maskOn = true;
 
-  if (sanitizedHands === true) {
+  if (sanitizedHands === true && maskOn === true) {
     return (
       <div>
-        <SanitizedHands />
+        <MaskAndSanitize />
         <Footage />
       </div>
     );
-  } else if (sanitizedHands === false) {
+  } else if (sanitizedHands === true && maskOn === false) {
+    return <NoMask />;
+  } else if (sanitizedHands === false && maskOn === true) {
     return <NoPurell />;
+  } else if (sanitizedHands === false && maskOn === false) {
+    return <NoMask />;
   }
 }
 
@@ -117,28 +137,24 @@ function Footage() {
   );
 }
 
-
 const inputs = document.querySelectorAll(".input");
 
-
-function addcl(){
-	let parent = this.parentNode.parentNode;
-	parent.classList.add("focus");
+function addcl() {
+  let parent = this.parentNode.parentNode;
+  parent.classList.add("focus");
 }
 
-function remcl(){
-	let parent = this.parentNode.parentNode;
-	if(this.value == ""){
-		parent.classList.remove("focus");
-	}
+function remcl() {
+  let parent = this.parentNode.parentNode;
+  if (this.value == "") {
+    parent.classList.remove("focus");
+  }
 }
 
-
-inputs.forEach(input => {
-	input.addEventListener("focus", addcl);
-	input.addEventListener("blur", remcl);
+inputs.forEach((input) => {
+  input.addEventListener("focus", addcl);
+  input.addEventListener("blur", remcl);
 });
-
 
 //num peole in store and stats
 //walking in zone and social distancing circle

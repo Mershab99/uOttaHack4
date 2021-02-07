@@ -8,6 +8,18 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+#msg {
+  padding-top: 500px;
+}
+
+.thanks {
+  padding-top: 10%;
+  padding-bottom: 40%;
+  display:block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+}
 
 * {
   padding: 0;
@@ -60,7 +72,7 @@ form {
 }
 .submit h2 {
   margin: 15px 0;
-  color: #333;
+  color:#41b6b1;
   font-size: 2.9rem;
 }
 .submit .input-div {
@@ -134,7 +146,7 @@ form {
   background: none;
   padding: 0.5rem 0.7rem;
   font-size: 1.2 rem;
-  color: #555;
+  color: #41b6b1;
   font-family: "Century Gothic", sans-serif;
 }
 .input-div.pass {
@@ -158,7 +170,7 @@ button {
   border-radius: 25px;
   outline: none;
   border: none;
-  background-image: linear-gradient(to right, #c1c1d7, #cdcddf, #b5b5d0);
+  background-image: linear-gradient(to right, #41b6b1, #96dad8, #ebfdfe);
   background-size: 200%;
   font-size: 1.2rem;
   color: #fff;
