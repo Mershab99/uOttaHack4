@@ -6,7 +6,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from flask_restful import Api
 
-from src.resources import status
+from src.mongo.mongo_engine import GLOBAL_MONGO_ENGINE
 
 app = Flask(__name__)
 app.logger.setLevel(logging.DEBUG)
@@ -49,7 +49,21 @@ if 'LOG_FOLDER' in os.environ:
 
 api = Api(app)
 
+#MONGO DRIVER CODE
+app.config['MONGODB_SETTINGS'] = {
+    'host': 'mongodb://' + os.environ['MONGO_USERNAME'] + ':' + os.environ['MONGO_PASSWORD'] + '@'
+            + os.environ['MONGO_HOST'] + ':' + os.environ['MONGO_PORT'] + '/' + os.environ[
+                'MONGO_DB'] + '?authSource=admin',
+    'db': 'social'
+}
+
+app.config['PROPAGATE_EXCEPTIONS'] = True
+
+GLOBAL_MONGO_ENGINE.init_app(app)
+
 # Resources
+from src.resources import status
+
 api.add_resource(status.Status, '/status')
 
 if __name__ == "__main__":
