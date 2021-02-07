@@ -4,6 +4,7 @@ import time # Provides time-related functions
 import cv2 # OpenCV library
 import numpy as np
 import json
+import os
 # Initialize the camera
 camera = PiCamera()
  
@@ -18,13 +19,14 @@ raw_capture = PiRGBArray(camera, size=(960, 720))
  
 # Wait a certain number of seconds to allow the camera time to warmup
 time.sleep(0.1)
+# background subtraction objects
 fgbg = cv2.createBackgroundSubtractorMOG2(history = 8)
 sanitizer_motion = cv2.createBackgroundSubtractorMOG2(history = 8)
 
 # parameters from JSON
 with open('vision_settings.json', 'r') as myfile:
     data=myfile.read()
-    
+
 vision_settings = json.loads(data)
 
 # ROI settings
@@ -46,6 +48,7 @@ sanitizer_end = (sanitizer_end_x, sanitizer_end_y)
 color = (255, 0, 0) 
 thickness = 4
 
+# states
 walk_in_state = False
 entering = False
 leaving = False
@@ -57,15 +60,18 @@ prevtime = time.time() * 1000
 previoustime = time.time() * 1000
 # Capture frames continuously from the camera
 for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port=True):
-
+    # Performance metric
     frametimer = time.time() *1000
     # Grab the raw NumPy array representing the image
     image = frame.array
     # walkzone ROI
     walkzoneROI = image[walkzone_start_y:walkzone_end_y,walkzone_start_x:walkzone_end_x]
     cv2.imshow("cropped", walkzoneROI)
-    blurredframe = cv2.blur(walkzoneROI, (3,3)) 
+    # Noise reduction
+    blurredframe = cv2.blur(walkzoneROI, (3,3))
+    # Background subtraction for walkzone
     fgmask = fgbg.apply(blurredframe)
+    # Noise reduction
     kernel = np.ones((5,5),np.uint16)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_CLOSE, kernel)
@@ -76,19 +82,21 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     height = walkzoneROI.shape[0]
     width = walkzoneROI.shape[1]
     #walkzoneROI = cv2.rectangle(walkzoneROI, (0,0), ((int)(width), (int)(height*.2)), color, thickness)
+    # Calulate Threshold values
     walking_in_walkzone = fgmask[0:(int)(height*.2),0:(int)(width)]
     walking_out_walkzone = fgmask[(int)(height*.7): height,0:(int)(width)]
     walk_in_threshold = 0.85*(width * (height *.2))
     walk_out_threshold = 0.9*(width * (height *.3))
     walk_in_b_pixels = np.sum(walking_in_walkzone == 0)
     walk_out_b_pixels = np.sum(walking_out_walkzone == 0)
-    # near 0 value 
+    # all pixels must be black to reset the event, near 0 value 
     if(walk_in_b_pixels > 0.95*(width * (height *.2)) and walk_out_b_pixels > 0.95*(width * (height *.3))):
         walk_in_state = False
         leaving = False
         #print("false ------------------")
+    # Prevents false readings
     if(not walk_in_state):
-        
+        # If walk in region detects white and if walk out region is mostly black
         if(walk_in_b_pixels < walk_in_threshold and  walk_out_b_pixels > walk_out_threshold):
             print(">>>>>>>>>>WALK IN DETECTED!>>>>>>>>>")
             walk_in_state = True
@@ -112,23 +120,25 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     cv2.imshow("walk out zone", walking_out_walkzone)
     cv2.imshow("walk in zone", walking_in_walkzone)
     
-    #Movement detection
+    # Movement detection to take photos
     n_black_pixels = np.sum(fgmask == 0)
     #print('number black pixel', n_black_pixels)
     # check if number of white pixels exceeds threshold of 5%
     # also check is cooldown time has passed, 500 millis current cooldown
     pixel_threshold = (walkzone_end_y-walkzone_start_y)*(walkzone_end_x-walkzone_start_x)
     if(n_black_pixels < pixel_threshold*.95 and (time.time()*1000) - previoustime >150):
+        # Determines when to increment id number
         if((time.time()*1000) - previoustime >350):
             img_id += 1
         print('movement detected!', n_black_pixels, 'time:', time.time())
+        path = '/home/pi/covid-images'
         if(leaving):
             filename = "leaving_{timestamp}_id{img_id}.jpg".format(timestamp = time.time(),img_id=img_id)
         else:
             filename = "entering_{timestamp}_id{img_id}.jpg".format(timestamp = time.time(),img_id=img_id)
         previoustime = time.time() * 1000
         
-        cv2.imwrite(filename, image)
+        cv2.imwrite(os.path.join(path, filename), image)
     # Display the frame using OpenCV
     image = cv2.rectangle(image, walkzone_start, walkzone_end, color, thickness)
     
@@ -136,12 +146,14 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     # Hand sanitizer detection
     image = cv2.rectangle(image, sanitizer_start, sanitizer_end, color, thickness)
     
+    # image processing
     sanitizerROI = image[sanitizer_start_y: sanitizer_end_y, sanitizer_start_x: sanitizer_end_x]
     sanitizerROI = cv2.blur(sanitizerROI, (3,3))
     sanitizer_movement = sanitizer_motion.apply(sanitizerROI)
     s_height = sanitizer_movement.shape[0]
     s_width = sanitizer_movement.shape[1]
     s_threshold = s_height*s_width*0.95
+    # if movement is detected and at least 1000 millis has elapsed since last sanitizer event
     if(np.sum(sanitizer_movement == 0) < s_threshold and time.time()*1000 - prevtime > 1000):
         print("==========THANKS FOR USING SANITIZER============")
         prevtime = time.time() * 1000
