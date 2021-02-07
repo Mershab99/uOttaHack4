@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { useEffect } from "react";
 import { useRef } from "react";
@@ -7,7 +6,7 @@ function Message(props) {
   return (
     <div
       style={{
-        color: "white",
+        color: "black",
         fontSize: "370%",
         fontFamily: "dosis",
         textAlign: "center",
@@ -56,7 +55,7 @@ const getPixelRatio = (context) => {
 
 function Footage() {
   let coords = [
-    [20, 40, 50, 80],
+    [20, 40, 60, 70],
     [20, 30, 40, 60],
     [62, 64, 420, 420],
   ];
@@ -81,7 +80,7 @@ function Footage() {
     canvas.style.height = `${height}px`;
 
     // Draw the background
-    context.fillStyle = "white";
+    context.fillStyle = "black";
     context.fillRect(0, 0, 100000, 100000);
 
     // Draw the store
@@ -118,6 +117,53 @@ function Footage() {
   );
 }
 
+
+const inputs = document.querySelectorAll(".input");
+
+
+function addcl(){
+	let parent = this.parentNode.parentNode;
+	parent.classList.add("focus");
+}
+
+function remcl(){
+	let parent = this.parentNode.parentNode;
+	if(this.value == ""){
+		parent.classList.remove("focus");
+	}
+}
+
+
+inputs.forEach(input => {
+	input.addEventListener("focus", addcl);
+	input.addEventListener("blur", remcl);
+});
+
+
 //num peole in store and stats
 //walking in zone and social distancing circle
 export default App;
+
+{
+  /* <div>
+<form action="/action_page.php">
+  <label for="wstrtx">Walkzone Start X:</label>
+  <input type="text" id="wstrtx" name="wstrtx" />
+  <label for="wendx">Walkzone End X:</label>
+  <input type="text" id="wendx" name="wendx" />
+  <label for="wstrty">Walkzone Start Y:</label>
+  <input type="text" id="wstrty" name="wstrty" />
+  <label for="wstrtx">Walkzone End Y:</label>
+  <input type="text" id="wendy" name="wendy" />
+  <label for="sstrtx">Sanitizer Start X:</label>
+  <input type="text" id="sstrtx" name="sstrtx" />
+  <label for="sendx">Sanitizer End X:</label>
+  <input type="text" id="sendx" name="sendx" />
+  <label for="sstrty">Sanitizer Start Y:</label>
+  <input type="text" id="sstrty" name="sstrty" />
+  <label for="sendx">Sanitizer End Y:</label>
+  <input type="text" id="sendy" name="sendy" />
+  <input type="submit" value="Submit" />
+</form>
+</div> */
+}
