@@ -62,11 +62,13 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 GLOBAL_MONGO_ENGINE.init_app(app)
 
 # Resources
-from src.resources import status
+from src.resources import status, settings
 
-api.add_resource(status.Status, '/status')
+api.add_resource(status.Status, '/status/')
+api.add_resource(settings.SettingsGet, '/settings-get/')
+api.add_resource(settings.SettingsUpdate, '/settings-update/')
 
 if __name__ == "__main__":
     # app.run(debug=True, port=int(os.environ.get("PORT", 80)))
     # DOCKER DEPLOYMENT
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 80)))
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 8000)))

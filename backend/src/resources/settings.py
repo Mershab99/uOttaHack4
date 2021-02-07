@@ -1,28 +1,36 @@
 from flask_restful import Resource, reqparse
-from src.mongo.datastore import DataLake as dl
+
+from src.mongo.datastore import LAKE_INSTANCE
 
 parser = reqparse.RequestParser()
-#parser.add_argument('home_key', type=str, required=True)
+parser.add_argument('data', type=dict, required=True)
 
 
-class Settings(Resource):
+class SettingsGet(Resource):
     @staticmethod
     def get():
-        data = parser.parse_args()
-        x = 1
-        #data["walkzone_start_x"]
+        try:
+            current_settings = LAKE_INSTANCE.find_by_key('settings')['data']
+        except KeyError:
+            return {
+                'failure': "No current settings for system"
+            }
+        return {
+            'current_settings': current_settings
+        }
 
+
+# WATCH INSERTIONS FOR NESTED 'data' OBJECTS
+class SettingsUpdate(Resource):
     @staticmethod
     def post():
         data = parser.parse_args()
-        test = check_setting_store()
-        x = 1
-
-
-
-def check_setting_store():
-    try:
-        setting = dl.find_by_key('setting')
-        return setting
-    except KeyError:
-        return False
+        old_settings = None
+        try:
+            old_settings = LAKE_INSTANCE.find_by_key('settings')['data']
+        finally:
+            LAKE_INSTANCE.flow_in('settings', data)
+            return {
+                'old_settings': old_settings,
+                'new_settings': data
+            }
