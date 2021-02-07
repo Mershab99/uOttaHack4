@@ -14,7 +14,7 @@ client.annotate_image({
 
 
 def detect_faces(id):
-    frames=glob.glob('./*'+str(id)+'.jpg')
+    frames=glob.glob('./*id'+str(id)+'.jpg')
     people_shop_count=0
     checkppe=False
     #start_time = time.time()
@@ -60,3 +60,22 @@ def detect_faces(id):
     return {'count': people_shop_count, 'ppecheck': checkppe , 'path': path}
 
 
+def main():
+    store_count=0
+    id_num=0
+    while 1:
+        images_path_before= glob.glob('./*id'+str(id_num)+'.jpg')
+        time.sleep(.101)
+        if len(images_path_before)>0:
+            images_path_after= glob.glob('./*id'+str(id_num)+'.jpg')
+            if len(images_path_before)!=len(images_path_after):
+                face_result= detect_faces(id_num)
+                # face result could be logged
+                id_num+=1
+                store_count+=face_result["count"]
+
+        #break
+
+
+if __name__ == "__main__":
+    main()
