@@ -61,7 +61,7 @@ def detect_faces(id):
         num_faces = len(faces)
         num_person = len(person)
         if num_faces < num_person:
-            people_shop_count -= num_person - num_faces
+            people_shop_count += num_faces*2 - num_person
         else:
             people_shop_count += num_faces
         # print(person)
