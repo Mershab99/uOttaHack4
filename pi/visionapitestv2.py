@@ -118,7 +118,7 @@ def main():
                     'timestamp': face_result['time'],
                     'result': face_result
                 }
-                api_broker.post_data(event_data=event_data, endpoint="/gcloud-event/")
+                api_broker.post_data(event_data=event_data, endpoint="/event/gcloud")
 
                 print("store count: " + str(store_count) + "\t was there a ppe : " + str(
                     ppecheck) + "\t id number: " + str(id_num))
