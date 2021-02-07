@@ -69,8 +69,8 @@ def detect_faces(id):
         shutil.move(path, destination )
         frames.remove(path)
         for pics in frames:
-            os.remove(pics)
-    return {'count': people_shop_count, 'ppecheck': checkppe , 'path': path}
+            os.remove(os.join(os.path.abspath(os.getcwd()),path[2:]))
+    return {'count': people_shop_count, 'ppecheck': checkppe , 'path': path, 'time': time.time()}
 
 
 def main():
@@ -83,7 +83,16 @@ def main():
             images_path_after= glob.glob('./*id'+str(id_num)+'.jpg')
             if len(images_path_before)==len(images_path_after):
                 face_result= detect_faces(id_num)
-                # face result could be logged
+#______________________________________________________________________________________________
+                # face_result could be logged
+                # {
+                #   "count": int number of people, negative for people leaving, positve for people entering
+                #   "ppechack": bool, True== persone has a mask, False== could not detect mask
+                #   "path": the image path that was used the send to google
+                #   "time": timestamp of the return function
+                # }
+                #
+#______________________________________________________________________________________________
                 id_num+=1
                 store_count+=face_result["count"]
                 ppecheck=face_result["ppecheck"]
