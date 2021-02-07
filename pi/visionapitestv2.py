@@ -1,6 +1,7 @@
 import os, io, shutil
 import glob
 import time
+from pygame import mixer
 from google.cloud import vision
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS']= r'visionApi.json'
@@ -12,12 +13,16 @@ client.annotate_image({
   'features': [{'type_': vision.Feature.Type.FACE_DETECTION}]
 })
 
+mixer.init()
+mixer.music.load('wear_a_mask.wav')
+
 
 def detect_faces(id):
     path=""
-    frames=glob.glob('./*id'+str(id)+'.jpg')
+    frames=glob.glob('./*'+str(id)+'.jpg')
     people_shop_count=0
     checkppe=False
+    print(frames)
     #start_time = time.time()
     if len(frames)>0:
         if "leaving" in frames[0]:
@@ -44,7 +49,7 @@ def detect_faces(id):
                 checkppe=True
                 break
             #print(ppecheck)
-
+        
 
         num_faces=len(faces)
         num_person=len(person)
@@ -69,7 +74,8 @@ def detect_faces(id):
         shutil.move(path, destination )
         frames.remove(path)
         for pics in frames:
-            os.remove(os.join(os.path.abspath(os.getcwd()),path[2:]))
+            print("".join(os.path.abspath(os.getcwd()),pics[2:]))
+            os.remove(os.path.join(os.path.abspath(os.getcwd()),pics[2:]))
     return {'count': people_shop_count, 'ppecheck': checkppe , 'path': path, 'time': time.time()}
 
 
@@ -83,6 +89,8 @@ def main():
             images_path_after= glob.glob('./*id'+str(id_num)+'.jpg')
             if len(images_path_before)==len(images_path_after):
                 face_result= detect_faces(id_num)
+                if (face_result["count"]>=0) and not face_result["ppecheck"]:
+                    mixer.music.play()
 #______________________________________________________________________________________________
                 # face_result could be logged
                 # {
