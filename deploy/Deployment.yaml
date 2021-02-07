@@ -23,6 +23,17 @@ spec:
             cpu: "500m"
         ports:
         - containerPort: 80
+        env:
+          - name: MONGO_USERNAME
+            value: mongo
+          - name: MONGO_PASSWORD
+            value: test
+          - name: MONGO_HOST
+            value: localhost
+          - name: MONGO_PORT
+            value: "27017"
+          - name: MONGO_DB
+            value: db
       - name: fe-service
         image: mershab99/fe-sani
         resources:
@@ -43,7 +54,7 @@ spec:
         - name: MONGOD_INITDB_ROOT_USERNAME
           value: mongo
         - name: MONGOD_INITDB_ROOT_PASSWORD
-          value: pass
+          value: test
 ---
 apiVersion: v1
 kind: Service
@@ -52,6 +63,7 @@ metadata:
     app: web
   name: mongodb-service
 spec:
+  type: LoadBalancer
   selector:
     app: web
   ports:
@@ -66,12 +78,13 @@ metadata:
     app: web
   name: be-service
 spec:
+  type: LoadBalancer
   selector:
     app: web
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 8000
+      targetPort: 8000
 ---
 apiVersion: v1
 kind: Service
@@ -80,6 +93,7 @@ metadata:
     app: web
   name: fe-service
 spec:
+  type: LoadBalancer
   selector:
     app: web
   ports:
