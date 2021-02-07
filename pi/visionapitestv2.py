@@ -19,16 +19,16 @@ mixer.music.load('wear_a_mask.wav')
 
 def detect_faces(id):
     path=""
-    frames=glob.glob('./*'+str(id)+'.jpg')
+    frames=glob.glob('./*id'+str(id)+'.jpg')
     people_shop_count=0
     checkppe=False
-    print(frames)
+    frames.sort()
     #start_time = time.time()
     if len(frames)>0:
         if "leaving" in frames[0]:
-           path= frames[0] 
+           path= frames[-1] 
         else:
-            path = frames[-1]
+            path = frames[0]
 
         with io.open(path, 'rb') as image_file:
                 content = image_file.read()
@@ -57,7 +57,6 @@ def detect_faces(id):
             people_shop_count-= num_person-num_faces
         else :
             people_shop_count += num_faces
-        
         #print(person)
         
        # print("--- %s seconds ---" % (time.time() - start_time))
@@ -72,10 +71,9 @@ def detect_faces(id):
         destination= "used_pic"+path[1:]
         print(destination)
         shutil.move(path, destination )
-        frames.remove(path)
-        for pics in frames:
-            print("".join(os.path.abspath(os.getcwd()),pics[2:]))
-            os.remove(os.path.join(os.path.abspath(os.getcwd()),pics[2:]))
+        #frames.remove(path)
+        #for pics in frames:
+            #shutil.move(pics, "junk_pic"+pics[1:])
     return {'count': people_shop_count, 'ppecheck': checkppe , 'path': path, 'time': time.time()}
 
 
@@ -104,7 +102,7 @@ def main():
                 id_num+=1
                 store_count+=face_result["count"]
                 ppecheck=face_result["ppecheck"]
-                print(f"store count: {store_count}\t was there a ppe : {ppecheck} \t id number: {id_num}")
+                print("store count: "+str(store_count)+"\t was there a ppe : "+str(ppecheck)+ "\t id number: "+str(id_num))
 
         #break
 
