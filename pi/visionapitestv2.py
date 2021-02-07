@@ -68,11 +68,13 @@ def main():
         time.sleep(.101)
         if len(images_path_before)>0:
             images_path_after= glob.glob('./*id'+str(id_num)+'.jpg')
-            if len(images_path_before)!=len(images_path_after):
+            if len(images_path_before)==len(images_path_after):
                 face_result= detect_faces(id_num)
                 # face result could be logged
                 id_num+=1
                 store_count+=face_result["count"]
+                ppecheck=face_result["ppecheck"]
+                print(f"store count: {store_count}\t was there a ppe : {ppecheck} \t id number: {id_num}")
 
         #break
 
