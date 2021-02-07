@@ -1,4 +1,4 @@
-import os, io 
+import os, io, shutil
 import glob
 import time
 from google.cloud import vision
@@ -14,12 +14,16 @@ client.annotate_image({
 
 
 def detect_faces(id):
+    path=""
     frames=glob.glob('./*id'+str(id)+'.jpg')
     people_shop_count=0
     checkppe=False
     #start_time = time.time()
     if len(frames)>0:
-        path= frames[-1]
+        if "leaving" in frames[0]:
+           path= frames[0] 
+        else:
+            path = frames[-1]
 
         with io.open(path, 'rb') as image_file:
                 content = image_file.read()
@@ -31,14 +35,15 @@ def detect_faces(id):
         'features': [{'type_': vision.Feature.Type.FACE_DETECTION},{'type_': vision.Feature.Type.OBJECT_LOCALIZATION},{'type_': vision.Feature.Type.LABEL_DETECTION , 'max_results':50}]
         })
         faces = response.face_annotations
-        pp=["Person"]
         #person = [d for d in response.localized_object_annotations if d["name"] in pp]
         person= list(filter(lambda d: d.name == "Person", response.localized_object_annotations))
         
         for ppecheck in response.label_annotations:
             if ppecheck.description == "Personal protective equipment":
+                #print(ppecheck)
                 checkppe=True
                 break
+            #print(ppecheck)
 
 
         num_faces=len(faces)
@@ -57,12 +62,20 @@ def detect_faces(id):
                 '{}\nFor more info on error messages, check: '
                 'https://cloud.google.com/apis/design/errors'.format(
                     response.error.message))
+        
+        #move and delete files
+        destination= "used_pic"+path[1:]
+        print(destination)
+        shutil.move(path, destination )
+        frames.remove(path)
+        for pics in frames:
+            os.remove(pics)
     return {'count': people_shop_count, 'ppecheck': checkppe , 'path': path}
 
 
 def main():
     store_count=0
-    id_num=0
+    id_num=2
     while 1:
         images_path_before= glob.glob('./*id'+str(id_num)+'.jpg')
         time.sleep(.101)
