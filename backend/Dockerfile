@@ -1,7 +1,7 @@
 FROM python:3.9
 ENV PYTHONBUFFERED=1
 
-RUN pip install flask flask_restful flask-cors
+RUN pip install flask flask_restful flask-cors flask_mongoengine
 
 RUN mkdir /code
 ADD . /code/

@@ -20,7 +20,7 @@ spec:
         resources:
           limits:
             memory: "128Mi"
-            cpu: "500m"
+            cpu: "100m"
         ports:
         - containerPort: 80
         env:
@@ -39,7 +39,7 @@ spec:
         resources:
           limits:
             memory: "256Mi"
-            cpu: "500m"
+            cpu: "100m"
         ports:
         - containerPort: 3000
       - name: db
@@ -47,13 +47,13 @@ spec:
         resources:
           limits:
             memory: "128Mi"
-            cpu: "500m"
+            cpu: "100m"
         ports:
           - containerPort: 27017
         env:
-        - name: MONGOD_INITDB_ROOT_USERNAME
+        - name: MONGO_INITDB_ROOT_USERNAME
           value: mongo
-        - name: MONGOD_INITDB_ROOT_PASSWORD
+        - name: MONGO_INITDB_ROOT_PASSWORD
           value: test
 ---
 apiVersion: v1
