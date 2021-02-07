@@ -27,7 +27,9 @@ class SettingsUpdate(Resource):
         data = parser.parse_args()
         old_settings = None
         try:
-            old_settings = LAKE_INSTANCE.find_by_key('settings')['data']
+            #TEST
+            old_settings = LAKE_INSTANCE.find_by_key('settings')
+            old_settings = old_settings['data']
         finally:
             LAKE_INSTANCE.flow_in('settings', data)
             return {

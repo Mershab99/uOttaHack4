@@ -170,7 +170,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
             'sanitize': True,
             'timestamp': sanitizer_timestamp.__str__()
         }
-        api_broker.post_data(event_data=event_data, endpoint="/event/sanitizer")
+        api_broker.post_data(event_data=event_data, endpoint="/event/sanitizer/")
 
         print("==========THANKS FOR USING SANITIZER============")
         prevtime = time.time() * 1000
