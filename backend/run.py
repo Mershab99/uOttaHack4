@@ -6,7 +6,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from flask_restful import Api
 
-from src.resources import status
+from src.mongo.mongo_engine import GLOBAL_MONGO_ENGINE
 
 app = Flask(__name__)
 app.logger.setLevel(logging.DEBUG)
@@ -18,8 +18,8 @@ if 'LOG_FOLDER' in os.environ:
 
     # File Logging Setup
     app.config['LOG_DIR'] = os.environ.get("LOG_FOLDER", "/")
-    app.config['APP_LOG_NAME'] = os.environ.get("APP_LOG_NAME", "praizl.log")
-    app.config['WWW_LOG_NAME'] = os.environ.get("WWW_LOG_NAME", "praizl_www.log")
+    app.config['APP_LOG_NAME'] = os.environ.get("APP_LOG_NAME", "sanihack.log")
+    app.config['WWW_LOG_NAME'] = os.environ.get("WWW_LOG_NAME", "sanihack.log")
     app.config['LOG_MAX_BYTES'] = os.environ.get("LOG_MAX_BYTES", 500_000_000)  # 100MB in bytes
     app.config['LOG_COPIES'] = os.environ.get("LOG_COPIES", 5)
 
@@ -49,10 +49,26 @@ if 'LOG_FOLDER' in os.environ:
 
 api = Api(app)
 
+#MONGO DRIVER CODE
+app.config['MONGODB_SETTINGS'] = {
+    'host': 'mongodb://' + os.environ['MONGO_USERNAME'] + ':' + os.environ['MONGO_PASSWORD'] + '@'
+            + os.environ['MONGO_HOST'] + ':' + os.environ['MONGO_PORT'] + '/' + os.environ[
+                'MONGO_DB'] + '?authSource=admin',
+    'db': 'social'
+}
+
+app.config['PROPAGATE_EXCEPTIONS'] = True
+
+GLOBAL_MONGO_ENGINE.init_app(app)
+
 # Resources
-api.add_resource(status.Status, '/status')
+from src.resources import status, settings
+
+api.add_resource(status.Status, '/status/')
+api.add_resource(settings.SettingsGet, '/settings-get/')
+api.add_resource(settings.SettingsUpdate, '/settings-update/')
 
 if __name__ == "__main__":
     # app.run(debug=True, port=int(os.environ.get("PORT", 80)))
     # DOCKER DEPLOYMENT
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 80)))
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 8000)))
