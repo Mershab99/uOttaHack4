@@ -53,7 +53,7 @@ walk_in_state = False
 entering = False
 leaving = False
 
-img_id = 0
+img_id = 1
 # for santizer cool down
 prevtime = time.time() * 1000
 # for walking zone
@@ -66,7 +66,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     image = frame.array
     # walkzone ROI
     walkzoneROI = image[walkzone_start_y:walkzone_end_y,walkzone_start_x:walkzone_end_x]
-    cv2.imshow("cropped", walkzoneROI)
+    #cv2.imshow("cropped", walkzoneROI)
     # Noise reduction
     blurredframe = cv2.blur(walkzoneROI, (3,3))
     # Background subtraction for walkzone
@@ -76,7 +76,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_CLOSE, kernel)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
-    cv2.imshow('frame',fgmask)
+    #cv2.imshow('frame',fgmask)
     
     #walk-in or walk-out algorithm
     height = walkzoneROI.shape[0]
@@ -85,8 +85,8 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     # Calulate Threshold values
     walking_in_walkzone = fgmask[0:(int)(height*.2),0:(int)(width)]
     walking_out_walkzone = fgmask[(int)(height*.7): height,0:(int)(width)]
-    walk_in_threshold = 0.85*(width * (height *.2))
-    walk_out_threshold = 0.9*(width * (height *.3))
+    walk_in_threshold = 0.835*(width * (height *.2))
+    walk_out_threshold = 0.91*(width * (height *.3))
     walk_in_b_pixels = np.sum(walking_in_walkzone == 0)
     walk_out_b_pixels = np.sum(walking_out_walkzone == 0)
     # all pixels must be black to reset the event, near 0 value 
@@ -103,22 +103,23 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
             entering = True
             leaving = False
             # debug
-            # print("walk in threshold", walk_in_threshold)
-            # print("walk out threshold", walk_out_threshold)
-            # print("walk_in_b_pixels: ", walk_in_b_pixels)
-            # print("walk_out_b_pixels: ", walk_out_b_pixels)
+            print("walk in threshold", walk_in_threshold)
+            print("walk out threshold", walk_out_threshold)
+            print("walk_in_b_pixels: ", walk_in_b_pixels)
+            print("walk_out_b_pixels: ", walk_out_b_pixels)
         elif(walk_out_b_pixels < 0.98*(width * (height *.3))):
             print("<<<<<<<<<<WALK OUT DETECTED!<<<<<<<<")
             walk_in_state = True
             entering = False
             leaving = True
             # debug
-            # print("walk in threshold", walk_in_threshold)
-            # print("walk out threshold", walk_out_threshold)
-            # print("walk_in_b_pixels: ", walk_in_b_pixels)
-            # print("walk_out_b_pixels: ", walk_out_b_pixels)
-    cv2.imshow("walk out zone", walking_out_walkzone)
-    cv2.imshow("walk in zone", walking_in_walkzone)
+            print("walk in threshold", walk_in_threshold)
+            print("walk out threshold", walk_out_threshold)
+            print("walk_in_b_pixels: ", walk_in_b_pixels)
+            print("walk_out_b_pixels: ", walk_out_b_pixels)
+            print("threshold" , 0.9*(width * (height *.3)))
+    #cv2.imshow("walk out zone", walking_out_walkzone)
+    #cv2.imshow("walk in zone", walking_in_walkzone)
     
     # Movement detection to take photos
     n_black_pixels = np.sum(fgmask == 0)
@@ -130,7 +131,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
         # Determines when to increment id number
         if((time.time()*1000) - previoustime >350):
             img_id += 1
-        print('movement detected!', n_black_pixels, 'time:', time.time())
+        #print('movement detected!', n_black_pixels, 'time:', time.time())
         path = '/home/pi/covid-images'
         if(leaving):
             filename = "leaving_{timestamp}_id{img_id}.jpg".format(timestamp = time.time(),img_id=img_id)
@@ -165,7 +166,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
         prevtime = time.time() * 1000
         
     #cv2.imshow("sanitizer", sanitizer_movement)
-    #cv2.imshow("Frame", image)
+    cv2.imshow("Frame", image)
     # Wait for keyPress for 1 millisecond
     key = cv2.waitKey(1) & 0xFF
      
@@ -173,7 +174,7 @@ for frame in camera.capture_continuous(raw_capture, format="bgr", use_video_port
     raw_capture.truncate(0)
     # performance timer
     elapsedtime = (time.time()*1000) - frametimer
-    print("frame/millis", elapsedtime)
+    #print("frame/millis", elapsedtime)
     # If the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
